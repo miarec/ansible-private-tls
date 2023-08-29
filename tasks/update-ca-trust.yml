@@ -1,0 +1,16 @@
+---
+- name: Create add CA directory
+  file:
+    path: "{{ openssl_client_ca_dir }}/{{ openssl_client_ca_file }}"
+    state: present
+    content: "{{ _ca_cert.certificate }}"
+    mode: 0700
+  register: _client_ca
+
+- name: Extract CA trust
+  command: update-ca-trust extract
+  when: _client_ca.changed
+
+- name: Update CA trust
+  command: update-ca-trust
+  when: _client_ca.changed

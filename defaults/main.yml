@@ -1,0 +1,35 @@
+---
+# CA variables
+openssl_ca_dir: /etc/openssl/ca
+openssl_ca_key: CA.key
+openssl_ca_cert: CA.pem
+openssl_secret_ca_passphrase: secret
+openssl_ca_key_size: 2048
+openssl_CA_CN: miarec-CA
+# The point in time at which the certificate stops being valid.
+# Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
+openssl_ca_cert_expiry: "+3650d"
+# The point in time the certificate is valid from.
+# Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
+openssl_ca_cert_start: "+0s"
+# Digest algorithm to be used when self-signing the certificate.
+openssl_ca_cert_digest: "sha256"
+
+
+
+# Host Certificate Varaibales
+openssl_server_dir: /etc/openssl/server
+
+# List of Servers that certificates should be generated for
+# openssl_servers:
+#  - 10.0.0.1
+#  - 10.0.0.2
+openssl_servers: []
+
+
+
+
+
+# Client Variables
+openssl_client_ca_dir: /etc/pki/ca-trust/source/anschors
+openssl_client_ca_file: CA.pem

@@ -1,0 +1,19 @@
+---
+# Create Root CA
+include:  ca.yml
+  delegate_to: "{{ openssl_root }}"
+
+# Add Root CA to trust on all hosts
+include: update-ca-trust.yml
+
+# Create Client Certificates signed by CA
+include: client-certificate.yml
+  delegate_to: "{{ openssl_root }}"
+
+# Add Client Certificates to servers
+include: local-certificate.yml
+  delegate_to: "{{ openssl_servers }}"
+
+
+
+Load host certs on host

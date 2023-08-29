@@ -1,0 +1,52 @@
+---
+- name: Create client directory
+  file:
+    path: "{{ openssl_server_dir }}/{{ item }}"
+    state: directory
+    mode: 0700
+  with_items: "{{ openssl_servers }}"
+
+
+- name: Create private key for certificate
+  openssl_privatekey:
+    path: "{{ openssl_server_dir }}/{{ item }}/{{ item }}.key"
+    size: "{{ openssl_server_key_size }}"
+  with_items: "{{ openssl_servers }}"
+
+
+- name: Create certificate signing request (CSR) for new certificate
+  openssl_csr_pipe:
+    privatekey_path: "{{ openssl_server_dir }}/{{ item }}/{{ item }}.key"
+    common_name: "{{ item }}"
+    # i need to figure out how to supply this somethin like this
+    # - db.example.com: {
+    #   - 10.0.0.1
+    #   - other.exmaple.com
+    #   - db.local
+    # }
+    # subject_alt_name:
+    #   - "DNS:ansible.com"
+    #   - "DNS:www.ansible.com"
+    #   - "DNS:docs.ansible.com"
+  register: _server_csr
+  with_items: "{{ openssl_servers }}"
+
+- debug:
+    var: _server_scr
+
+- name: Sign certificate with our CA
+  x509_certificate_pipe:
+    # csr_content: "{{ _server_csr.csr }}"
+    csr_content: "{{ item.csr }}"    # Im going to have to test this
+    provider: ownca
+    ownca_path: "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+    ownca_privatekey_path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+    ownca_privatekey_passphrase: "{{ openssl_secret_ca_passphrase }}"
+    ownca_not_after: "{{ openssl_server_cert_expiry }}"
+    ownca_not_before: "{{ openssl_server_cert_start }}"
+  register: _server_cert
+  with_items: "{{ _server_csr.results }}"
+
+- debug:
+    var: _server_cert
+

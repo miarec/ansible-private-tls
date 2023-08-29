@@ -1,0 +1,13 @@
+---
+- name: Create local certificate directory
+  file:
+    path: "{{ openssl_local_certificaite_dir }}"
+    state: directory
+    mode: 0700
+
+
+- name: Write certificate file on {{ item }}
+  copy:
+    dest: "{{ openssl_local_certificaite_dir }}/{{ item.item }}.pem"
+    content: "{{ item.item.certificate }}"
+  with_items: "{{ _server_cert.results }}"

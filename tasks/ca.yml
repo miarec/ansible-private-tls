@@ -1,0 +1,38 @@
+---
+- name: Create CA directory
+  file:
+    path: "{{ openssl_ca_dir }}"
+    state: directory
+    mode: 0700
+
+- name: Create CA private key with password protection
+  openssl_privatekey:
+    path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+    passphrase: "{{ openssl_secret_ca_passphrase }}"
+    size: "{{ openssl_ca_key_size }}"
+
+- name: Create certificate signing request (CSR) for CA certificate
+  openssl_csr_pipe:
+    privatekey_path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+    privatekey_passphrase: "{{ openssl_secret_ca_passphrase }}"
+    common_name: "{{ openssl_CA_CN }}"
+    use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+    key_usage_critical: true
+  register: _ca_csr
+
+- name: Create self-signed CA certificate from CSR
+  x509_certificate:
+    path: "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+    csr_content: "{{ _ca_csr.csr }}"
+    privatekey_path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+    privatekey_passphrase: "{{ openssl_secret_ca_passphrase }}"
+    provider: selfsigned
+    selfsigned_not_after: "{{ openssl_ca_cert_expiry }}"
+    selfsigned_not_before: "{{ openssl_ca_cert_start }}"
+    selfsigned_digest: "{{ openssl_ca_cert_digest }}"
+  register: _ca_cert
