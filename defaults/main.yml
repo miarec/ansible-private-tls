@@ -19,13 +19,26 @@ openssl_ca_cert_digest: "sha256"
 
 # Host Certificate Varaibales
 openssl_server_dir: /etc/openssl/server
+openssl_server_key_size: 2048
+# The point in time the certificate is valid from.
+# Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
+openssl_server_cert_expiry:
+# The point in time the certificate is valid from.
+# Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
+openssl_server_cert_start: "+0s"
+
+
+
+# Localt Certificate
+openssl_local_certificaite_dir: /etc/pki/tls
+
+
 
 # List of Servers that certificates should be generated for
 # openssl_servers:
 #  - 10.0.0.1
 #  - 10.0.0.2
 openssl_servers: []
-
 
 
 
