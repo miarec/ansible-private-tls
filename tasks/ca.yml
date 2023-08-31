@@ -3,36 +3,76 @@
   file:
     path: "{{ openssl_ca_dir }}"
     state: directory
-    mode: 0700
+    mode: 0600
+
+# - name: Create CA private key with password protection
+#   openssl_privatekey:
+#     path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+#     passphrase: "{{ openssl_secret_ca_passphrase }}"
+#     cipher: auto
+#     size: "{{ openssl_ca_key_size }}"
 
 - name: Create CA private key with password protection
-  openssl_privatekey:
-    path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
-    passphrase: "{{ openssl_secret_ca_passphrase }}"
-    size: "{{ openssl_ca_key_size }}"
+  command:
+  # shell:
+    cmd: >
+      openssl genrsa -{{ openssl_ca_key_cipher }}
+      -out {{ openssl_ca_key }}
+      -passout pass:{{ openssl_secret_ca_passphrase }}
+      {{ openssl_ca_key_size }}
+    chdir: "{{ openssl_ca_dir }}"
+    creates: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+    # passphrase: "{{ openssl_secret_ca_passphrase }}"
+    # cipher: auto
+    # size: "{{ openssl_ca_key_size }}"
 
-- name: Create certificate signing request (CSR) for CA certificate
-  openssl_csr_pipe:
-    privatekey_path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
-    privatekey_passphrase: "{{ openssl_secret_ca_passphrase }}"
-    common_name: "{{ openssl_CA_CN }}"
-    use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
-    basic_constraints:
-      - 'CA:TRUE'
-    basic_constraints_critical: true
-    key_usage:
-      - keyCertSign
-    key_usage_critical: true
-  register: _ca_csr
+# - name: Create certificate signing request (CSR) for CA certificate
+#   community.crypto.openssl_csr_pipe:
+#     privatekey_path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+#     privatekey_passphrase: "{{ openssl_secret_ca_passphrase }}"
+#     common_name: "{{ openssl_CA_CN }}"
+#     use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
+#     basic_constraints:
+#       - 'CA:TRUE'
+#     basic_constraints_critical: true
+#     key_usage:
+#       - keyCertSign
+#     key_usage_critical: true
+#   register: _ca_csr
 
-- name: Create self-signed CA certificate from CSR
-  x509_certificate:
-    path: "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
-    csr_content: "{{ _ca_csr.csr }}"
-    privatekey_path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
-    privatekey_passphrase: "{{ openssl_secret_ca_passphrase }}"
-    provider: selfsigned
-    selfsigned_not_after: "{{ openssl_ca_cert_expiry }}"
-    selfsigned_not_before: "{{ openssl_ca_cert_start }}"
-    selfsigned_digest: "{{ openssl_ca_cert_digest }}"
-  register: _ca_cert
+# - name: Create self-signed CA certificate from CSR
+#   community.crypto.x509_certificate:
+#     path: "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+#     csr_content: "{{ _ca_csr.csr }}"
+#     privatekey_path: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+#     privatekey_passphrase: "{{ openssl_secret_ca_passphrase }}"
+#     provider: selfsigned
+#     selfsigned_not_after: "{{ openssl_ca_cert_expiry }}"
+#     selfsigned_not_before: "{{ openssl_ca_cert_start }}"
+#     selfsigned_digest: "{{ openssl_ca_cert_digest }}"
+#   register: _ca_cert
+
+- name: Create self-signed CA certificate
+  command:
+    cmd: >
+      openssl req -x509 -new -nodes -{{ openssl_ca_cert_digest }}
+      -key {{ openssl_ca_dir }}/{{ openssl_ca_key }}
+      -passin pass:{{ openssl_secret_ca_passphrase }}
+      -days {{ openssl_ca_cert_expiry }}
+      -out {{ openssl_ca_dir }}/{{ openssl_ca_cert }}
+      -subj "/CN={{ openssl_CA_CN }}/"
+    chdir: "{{ openssl_ca_dir }}"
+    creates: "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+
+# - name: Register CA Certificate contents
+#   set_fact:
+#     _ca_cert: "{{ lookup('file', '{{ openssl_ca_dir }}/{{ openssl_ca_cert }}' ) }}"
+
+# - name: Register CA Certificate contents
+#   command: cat {{ openssl_ca_dir }}/{{ openssl_ca_cert }}
+#   register: _ca_cert
+#   changed_when: false
+#   run_once: True
+
+# - debug:
+#     var: _ca_cert.stdout

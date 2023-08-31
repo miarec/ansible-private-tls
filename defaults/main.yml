@@ -1,14 +1,24 @@
 ---
+# Dependencies
+python_dependencies:
+  - cryptography
+
 # CA variables
 openssl_ca_dir: /etc/openssl/ca
 openssl_ca_key: CA.key
-openssl_ca_cert: CA.pem
+openssl_ca_key_cipher: des3
 openssl_secret_ca_passphrase: secret
 openssl_ca_key_size: 2048
+
+
+openssl_ca_cert: CA.pem
 openssl_CA_CN: miarec-CA
+
 # The point in time at which the certificate stops being valid.
 # Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
-openssl_ca_cert_expiry: "+3650d"
+openssl_ca_cert_expiry: 3650
+# openssl_ca_cert_expiry: "+3650d"
+
 # The point in time the certificate is valid from.
 # Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
 openssl_ca_cert_start: "+0s"
@@ -18,14 +28,14 @@ openssl_ca_cert_digest: "sha256"
 
 
 # Host Certificate Varaibales
-openssl_server_dir: /etc/openssl/server
-openssl_server_key_size: 2048
+openssl_clients_dir: /etc/openssl/clients
+openssl_clients_key_size: 2048
 # The point in time the certificate is valid from.
 # Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
-openssl_server_cert_expiry:
+openssl_clients_cert_expiry: 3650
 # The point in time the certificate is valid from.
 # Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
-openssl_server_cert_start: "+0s"
+openssl_clients_cert_start: "+0s"
 
 
 
@@ -35,14 +45,14 @@ openssl_local_certificaite_dir: /etc/pki/tls
 
 
 # List of Servers that certificates should be generated for
-# openssl_servers:
+# openssl_clientss:
 #  - 10.0.0.1
 #  - 10.0.0.2
-openssl_servers: []
+openssl_clients: []
 
 
 
 
 # Client Variables
-openssl_client_ca_dir: /etc/pki/ca-trust/source/anschors
-openssl_client_ca_file: CA.pem
+# openssl_client_ca_dir: /etc/pki/ca-trust/source/anchors
+# openssl_client_ca_file: CA.pem

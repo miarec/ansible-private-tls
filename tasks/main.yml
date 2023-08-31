@@ -1,19 +1,29 @@
 ---
-# Create Root CA
-include:  ca.yml
-  delegate_to: "{{ openssl_root }}"
+- include: preflight.yml
 
-# Add Root CA to trust on all hosts
-include: update-ca-trust.yml
+# - include: root-dependencies.yml
+#   become: true
+#   when: inventory_hostname in openssl_root
 
-# Create Client Certificates signed by CA
-include: client-certificate.yml
-  delegate_to: "{{ openssl_root }}"
+# # Create Root CA
+# - include:  ca.yml
+#   become: true
+#   when: inventory_hostname in openssl_root
+
+
+# # Add Root CA to trust on all hosts
+# - include: update-ca-trust.yml
+#   become: true
+
+# # Create Client Certificates signed by CA
+# - include: certificate.yml
+#   become: true
+#   when: inventory_hostname in openssl_root
 
 # Add Client Certificates to servers
-include: local-certificate.yml
-  delegate_to: "{{ openssl_servers }}"
+- include: local-certificate.yml
+  become: true
+  when: inventory_hostname in openssl_clients
 
 
-
-Load host certs on host
+# Load host certs on host

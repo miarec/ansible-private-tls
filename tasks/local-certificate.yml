@@ -1,13 +1,36 @@
 ---
+- name: Fetch client certifcate from root
+  fetch:
+    src:  "{{ openssl_clients_dir }}/{{ item }}/{{item}}.crt"
+    dest: /tmp/
+    flat: True
+  when: inventory_hostname in openssl_root
+  with_items: "{{ openssl_clients }}"
+
+# - name: Fetch client certifcate from root
+#   slurp:
+#     src:  "{{ openssl_clients_dir }}/{{ item }}/{{item}}.crt"
+#     # dest: /tmp/
+#     # flat: True
+#   when: inventory_hostname in openssl_root
+#   with_items: "{{ openssl_clients }}"
+#   register: test
+
+# - debug:
+#     msg: "{{ test.results.0.item }}"
+#   when: inventory_hostname is test.results.0.item
+#     # msg: "{{ test.0['content'] | b64decode }}"
+
 - name: Create local certificate directory
   file:
     path: "{{ openssl_local_certificaite_dir }}"
     state: directory
-    mode: 0700
+    mode: 0640
 
-
-- name: Write certificate file on {{ item }}
+# This is putting all client cert on all clients, i have to filter this per host....
+- name: Write certificate file client
   copy:
-    dest: "{{ openssl_local_certificaite_dir }}/{{ item.item }}.pem"
-    content: "{{ item.item.certificate }}"
-  with_items: "{{ _server_cert.results }}"
+    src: /tmp/{{ item }}.crt
+    dest: "{{ openssl_local_certificaite_dir }}/"
+  with_items: "{{ openssl_clients }}"
+
