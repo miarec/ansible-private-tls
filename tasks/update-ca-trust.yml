@@ -6,24 +6,16 @@
     flat: True
   when: inventory_hostname in openssl_root
 
-
-
-# - debug:
-#     var: _ca_cert.stdout
-
 - name: Make sure anchor directory exists
   file:
-    path: "{{ openssl_client_ca_dir }}"
+    path: "{{ openssl_clients_ca_dir }}"
     state: directory
     mode: 0755
 
 - name: Add CA file
   copy:
     src: /tmp/{{ openssl_ca_cert }}
-    dest: "{{ openssl_client_ca_dir }}/{{ openssl_client_ca_file }}"
-    # state: file
-    # content: "{{ _ca_cert.stdout }}"
-    # mode: 0700
+    dest: "{{ openssl_clients_ca_dir }}/{{ openssl_clients_ca_file }}"
   register: _client_ca
 
 - name: Update CA Trust

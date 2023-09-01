@@ -3,12 +3,3 @@
     name: "{{ item }}"
     state: present
   with_items: "{{ package_dependencies }}"
-
-# - name: Upgrade PIP
-#   command:  pip install --upgrade pip
-
-# - name: Install Python dependencies
-#   pip:
-#     name: "{{ item }}"
-#   executable: pip3
-#   with_items: "{{ python_dependencies }}"

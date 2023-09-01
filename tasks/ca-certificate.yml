@@ -1,0 +1,28 @@
+---
+- name: Create CA directory
+  file:
+    path: "{{ openssl_ca_dir }}"
+    state: directory
+    mode: 0640
+
+- name: Create CA private key with password protection
+  command:
+    cmd: >
+      openssl genrsa -{{ openssl_ca_key_cipher }}
+      -out {{ openssl_ca_key }}
+      -passout pass:{{ openssl_secret_ca_passphrase }}
+      {{ openssl_ca_key_size }}
+    chdir: "{{ openssl_ca_dir }}"
+    creates: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
+
+- name: Create self-signed CA certificate
+  command:
+    cmd: >
+      openssl req -x509 -new -nodes -{{ openssl_ca_cert_digest }}
+      -key {{ openssl_ca_dir }}/{{ openssl_ca_key }}
+      -passin pass:{{ openssl_secret_ca_passphrase }}
+      -days {{ openssl_ca_cert_expiry }}
+      -out {{ openssl_ca_dir }}/{{ openssl_ca_cert }}
+      -subj "/CN={{ openssl_ca_common_name }}/"
+    chdir: "{{ openssl_ca_dir }}"
+    creates: "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"

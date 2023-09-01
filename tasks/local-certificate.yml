@@ -1,19 +1,19 @@
 ---
 - name: Fetch client certifcate from root
   fetch:
-    src:  "{{ openssl_clients_dir }}/{{ item }}/{{item}}.crt"
+    src:  "{{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.crt"
     dest: /tmp/
     flat: True
   when: inventory_hostname in openssl_root
-  with_items: "{{ openssl_clients }}"
+  with_items: "{{ openssl_servers }}"
 
 # - name: Fetch client certifcate from root
 #   slurp:
-#     src:  "{{ openssl_clients_dir }}/{{ item }}/{{item}}.crt"
+#     src:  "{{ openssl_servers_dir }}/{{ item }}/{{item}}.crt"
 #     # dest: /tmp/
 #     # flat: True
 #   when: inventory_hostname in openssl_root
-#   with_items: "{{ openssl_clients }}"
+#   with_items: "{{ openssl_servers }}"
 #   register: test
 
 # - debug:
@@ -30,7 +30,7 @@
 # This is putting all client cert on all clients, i have to filter this per host....
 - name: Write certificate file client
   copy:
-    src: /tmp/{{ item }}.crt
+    src: /tmp/{{ inventory_hostname }}.crt    # This is not right now,   the Common name could be something else
     dest: "{{ openssl_local_certificaite_dir }}/"
-  with_items: "{{ openssl_clients }}"
+  # with_items: "{{ openssl_servers }}"
 

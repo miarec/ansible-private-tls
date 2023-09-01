@@ -3,16 +3,21 @@
 python_dependencies:
   - cryptography
 
+openssl_base_dir: /etc/openssl/
+
 # CA variables
-openssl_ca_dir: /etc/openssl/ca
-openssl_ca_key: CA.key
+openssl_ca_common_name: miarec-CA
+openssl_ca_dir: "{{ openssl_base_dir }}/ca"
+openssl_ca_key: "{{ openssl_ca_common_name }}.key"
 openssl_ca_key_cipher: des3
 openssl_secret_ca_passphrase: secret
 openssl_ca_key_size: 2048
 
 
-openssl_ca_cert: CA.pem
-openssl_CA_CN: miarec-CA
+
+openssl_ca_cert: "{{ openssl_ca_common_name }}.pem"
+# openssl_ca_config: {{ openssl_ca_common_name }}.cnf
+
 
 # The point in time at which the certificate stops being valid.
 # Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
@@ -27,15 +32,34 @@ openssl_ca_cert_digest: "sha256"
 
 
 
-# Host Certificate Varaibales
-openssl_clients_dir: /etc/openssl/clients
-openssl_clients_key_size: 2048
+# Server Certificate Varaibales
+
+
+openssl_servers: []
+# List of Servers that certificates should be generated for, along with optional variables
+# common_name: is the only required variable
+# Example:
+# openssl_clients:
+#   - common_name: host1.example.com
+#     alt_DNS:
+#       - 10.0.0.1
+#       - "other.example.com"
+#     country: "US"
+#     state: "CA"
+#     locality: "San Jose"
+#     org: "miarec"
+#     org_unit: "devops"
+#     email: "ssl@example.com"
+
+
+openssl_servers_dir: "{{ openssl_base_dir }}/servers"
+openssl_servers_key_size: 2048
 # The point in time the certificate is valid from.
 # Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
-openssl_clients_cert_expiry: 3650
+openssl_servers_cert_expiry: 3650
 # The point in time the certificate is valid from.
 # Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
-openssl_clients_cert_start: "+0s"
+openssl_servers_cert_start: "+0s"
 
 
 
@@ -44,11 +68,6 @@ openssl_local_certificaite_dir: /etc/pki/tls
 
 
 
-# List of Servers that certificates should be generated for
-# openssl_clientss:
-#  - 10.0.0.1
-#  - 10.0.0.2
-openssl_clients: []
 
 
 

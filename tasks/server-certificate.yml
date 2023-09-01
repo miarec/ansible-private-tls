@@ -1,0 +1,42 @@
+---
+- name: Create Servers directory
+  file:
+    path: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+    state: directory
+    mode: 0600
+  with_items: "{{ openssl_servers }}"
+
+- name: Create config file
+  template:
+    src: servers-config.cnf.j2
+    dest: "{{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.cnf"
+    mode: 0640
+  with_items: "{{ openssl_servers }}"
+  become: true
+
+- name: Create Servers private key and CSR
+  command:
+    cmd: >
+      openssl req -nodes -newkey rsa:2048
+      -out {{ item.common_name }}.csr
+      -config {{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.cnf
+    chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+    creates: "{{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.key"
+  with_items: "{{ openssl_servers }}"
+
+- name: Create Servers Certificate signed by CA
+  command:
+    cmd: >
+      openssl x509 -req
+      -days {{ openssl_servers_cert_expiry }}
+      -in {{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.csr
+      -CA {{ openssl_ca_dir }}/{{ openssl_ca_cert }}
+      -CAkey {{ openssl_ca_dir }}/{{ openssl_ca_key }}
+      -CAcreateserial
+      -out {{ item.common_name }}.crt
+      -passin pass:{{ openssl_secret_ca_passphrase }}
+      -extfile {{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.cnf
+      -extensions v3_req
+    chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+    creates: "{{ openssl_servers_dir }}/{{ item.common_name }}/{{item.common_name}}.crt"
+  with_items: "{{ openssl_servers }}"

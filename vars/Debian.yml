@@ -1,6 +1,5 @@
 ---
-package_dependencies:
-  - python3-pip
+package_dependencies: []
 
-openssl_client_ca_dir: /usr/local/share/ca-certificates
-openssl_client_ca_file: CA.crt
+openssl_clients_ca_dir: /usr/local/share/ca-certificates
+openssl_clients_ca_file: CA.crt

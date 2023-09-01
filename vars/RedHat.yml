@@ -4,5 +4,5 @@ package_dependencies:
   - openssl-devel
 
 
-openssl_client_ca_dir: /etc/pki/ca-trust/source/anchors
-openssl_client_ca_file: CA.pem
+openssl_clients_ca_dir: /etc/pki/ca-trust/source/anchors
+openssl_clients_ca_file: CA.pem
