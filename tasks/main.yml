@@ -20,12 +20,16 @@
   become: true
   when: inventory_hostname in openssl_root
 
-# Create Client generation, this will be optional
-
+# Create Client Certificates signed by CA
+- include: client-certificate.yml
+  become: true
+  when: inventory_hostname in openssl_root
 
 
 # # Need to make the copy not dependant on hostname
 # # What if i want a seperate cert for postgres and redis ????
+# I think i will move this part out of this role,
+# like if i generate a cert for redis, have a pre task on the redis play that pulls the cert
 
 # Add Client Certificates to servers
 # - include: local-certificate.yml

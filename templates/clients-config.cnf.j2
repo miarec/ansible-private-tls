@@ -1,24 +1,32 @@
 [ req ]
 prompt                 = no
-days                   = 365
+default_keyfile        = {{ item.common_name }}.key
 distinguished_name     = req_distinguished_name
 req_extensions         = v3_req
 
-
 [ req_distinguished_name ]
-countryName            = AB
-stateOrProvinceName    = CD
-localityName           = EFG_HIJ
-organizationName       = MyOrg
-organizationalUnitName = MyOrgUnit
-commonName             = mycommname.com
-emailAddress           = emailaddress@myemail.com
+commonName             = {{ item.common_name }}
+{% if item.country is defined %}countryName            = {{ item.country }}
+{% endif %}
+{% if item.state is defined %}stateOrProvinceName    = {{ item.state }}
+{% endif %}
+{% if item.locality is defined %}localityName           = {{ item.locality }}
+{% endif %}
+{% if item.org is defined %}organizationName       = {{ item.org }}
+{% endif %}
+{% if item.org_unit is defined %}organizationalUnitName = {{ item.org_unit }}
+{% endif %}
+{% if item.email is defined %}emailAddress           = {{ item.email }}
+{% endif %}
+
 
 [ v3_req ]
-basicConstraints       = CA:false
-extendedKeyUsage       = clientAuth
-subjectAltName         = @sans
+subjectAltName=@sans
 
 [ sans ]
-DNS.0 = localhost
-DNS.1 = myexampleclient.com
+DNS.0=localhost
+{% if item.alt_dns is defined %}
+{% for i in item.alt_dns %}
+DNS.{{ loop.index }}={{ i }}
+{% endfor %}
+{% endif %}

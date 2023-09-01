@@ -33,8 +33,6 @@ openssl_ca_cert_digest: "sha256"
 
 
 # Server Certificate Varaibales
-
-
 openssl_servers: []
 # List of Servers that certificates should be generated for, along with optional variables
 # common_name: is the only required variable
@@ -54,12 +52,38 @@ openssl_servers: []
 
 openssl_servers_dir: "{{ openssl_base_dir }}/servers"
 openssl_servers_key_size: 2048
-# The point in time the certificate is valid from.
-# Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
+# Number of days teh is valid for.
 openssl_servers_cert_expiry: 3650
-# The point in time the certificate is valid from.
-# Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
-openssl_servers_cert_start: "+0s"
+
+
+
+# CLients Certificate Varaibales
+
+
+openssl_clients: []
+# List of Servers that certificates should be generated for, along with optional variables
+# common_name: is the only required variable
+# Example:
+# openssl_clients:
+#   - common_name: host1.example.com
+#     alt_DNS:
+#       - 10.0.0.1
+#       - "other.example.com"
+#     country: "US"
+#     state: "CA"
+#     locality: "San Jose"
+#     org: "miarec"
+#     org_unit: "devops"
+#     email: "ssl@example.com"
+
+
+openssl_clients_dir: "{{ openssl_base_dir }}/clients"
+openssl_clients_key_size: 2048
+# Number of days teh is valid for.
+openssl_clients_cert_expiry: 3650
+
+
+
 
 
 
