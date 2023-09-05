@@ -26,3 +26,4 @@
       -subj "/CN={{ openssl_ca_common_name }}/"
     chdir: "{{ openssl_ca_dir }}"
     creates: "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+  register: _ca_cert

@@ -1,10 +1,18 @@
 ---
+# - name: Fetch CA from root
+#   fetch:
+#     src:  "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+#     dest: /tmp/
+#     flat: True
+#   when: inventory_hostname in openssl_root
+
 - name: Fetch CA from root
-  fetch:
-    src:  "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
-    dest: /tmp/
-    flat: True
-  when: inventory_hostname in openssl_root
+  command:
+    cmd: "cat {{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+  register: _ca_content
+  when:
+  - inventory_hostname in openssl_root
+  - _ca_cert.changed
 
 - name: Make sure anchor directory exists
   file:
@@ -14,7 +22,8 @@
 
 - name: Add CA file
   copy:
-    src: /tmp/{{ openssl_ca_cert }}
+    # src: /tmp/{{ openssl_ca_cert }}
+    content: _ca_content.stdout
     dest: "{{ openssl_clients_ca_dir }}/{{ openssl_clients_ca_file }}"
   register: _client_ca
 

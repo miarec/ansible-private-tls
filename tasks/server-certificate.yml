@@ -13,6 +13,68 @@
     mode: 0640
   with_items: "{{ openssl_servers }}"
   become: true
+  register: _server_csr
+
+
+# - debug:
+#     var: _server_csr
+
+# Force replacement
+- name: Remove Server Certificates if replacement is required
+  block:
+
+  - set_fact:
+      prefix: "{{ ansible_date_time.date }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+
+  - debug:
+      var: "{{ prefix }}"
+
+  - name: create old directory
+    file:
+      path: "{{ openssl_servers_dir }}/{{ prefix }}"
+      state: directory
+      mode: 0600
+
+  - name: move csr
+    command:
+      cmd: mv {{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.csr {{ openssl_servers_dir }}/{{ prefix }}
+      chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+    with_items: "{{ openssl_servers }}"
+    failed_when: false
+
+  - name: move key
+    command:
+      cmd: mv {{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.key {{ openssl_servers_dir }}/{{ prefix }}
+      chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+    with_items: "{{ openssl_servers }}"
+    failed_when: false
+
+  - name: move crt
+    command:
+      cmd: mv {{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.crt {{ openssl_servers_dir }}/{{ prefix }}
+      chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+    with_items: "{{ openssl_servers }}"
+    failed_when: false
+
+  # - name: Remove csr
+  #   file:
+  #     path: "{{ openssl_servers_dir }}/{{ item.common_name }}/{{item.common_name}}.csr"
+  #     state: absent
+  #   with_items: "{{ openssl_servers }}"
+
+  # - name: Remove key
+  #   file:
+  #     path: "{{ openssl_servers_dir }}/{{ item.common_name }}/{{item.common_name}}.key"
+  #     state: absent
+  #   with_items: "{{ openssl_servers }}"
+
+  # - name: Remove cert
+  #   file:
+  #     path: "{{ openssl_servers_dir }}/{{ item.common_name }}/{{item.common_name}}.crt"
+  #     state: absent
+  #   with_items: "{{ openssl_servers }}"
+
+  when: _server_csr.changed or openssl_servers_force_replace
 
 - name: Create Servers private key and CSR
   command:
@@ -23,6 +85,7 @@
     chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
     creates: "{{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.key"
   with_items: "{{ openssl_servers }}"
+
 
 - name: Create Servers Certificate signed by CA
   command:

@@ -3,7 +3,7 @@
 python_dependencies:
   - cryptography
 
-openssl_base_dir: /etc/openssl/
+openssl_base_dir: /etc/openssl
 
 # CA variables
 openssl_ca_common_name: miarec-CA
@@ -56,6 +56,7 @@ openssl_servers_key_size: 2048
 openssl_servers_cert_expiry: 3650
 
 
+openssl_servers_force_replace: false # When true, existing certificate, key and CSR will be moved and regenerated
 
 # CLients Certificate Varaibales
 
