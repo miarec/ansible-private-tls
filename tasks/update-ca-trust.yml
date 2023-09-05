@@ -1,12 +1,5 @@
 ---
-# - name: Fetch CA from root
-#   fetch:
-#     src:  "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
-#     dest: /tmp/
-#     flat: True
-#   when: inventory_hostname in openssl_root
-
-- name: Fetch CA from root
+- name: Update CA trust - Fetch CA from root
   command:
     cmd: "cat {{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
   register: _ca_content
@@ -14,15 +7,34 @@
   - inventory_hostname in openssl_root
   - _ca_cert.changed
 
-- name: Make sure anchor directory exists
+- name: Update CA trust - Make sure anchor directory exists
   file:
     path: "{{ openssl_clients_ca_dir }}"
     state: directory
     mode: 0755
 
-- name: Add CA file
+- name: Force
+  block:
+  - set_fact:
+      trust_prefix: "{{ ansible_date_time.date }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+
+  - name: Update CA trust - Create directory for existing ca certificates
+    file:
+      path: "{{ openssl_clients_ca_dir }}/{{ trust_prefix }}"
+      state: directory
+      mode: 0600
+
+  - name: Update CA trust - Move existing ca
+    command:
+      cmd: mv {{ openssl_clients_ca_file }} {{ trust_prefix }}
+      chdir: "{{ openssl_clients_ca_dir }}"
+    failed_when: false
+
+  when: openssl_ca_force_replace
+
+
+- name: Update CA trust - Add CA file
   copy:
-    # src: /tmp/{{ openssl_ca_cert }}
     content: _ca_content.stdout
     dest: "{{ openssl_clients_ca_dir }}/{{ openssl_clients_ca_file }}"
   register: _client_ca
@@ -30,11 +42,11 @@
 - name: Update CA Trust
   block:
 
-  - name: RedHat - Update CA trust
+  - name: Update CA trust - RedHat
     command: update-ca-trust extract && update-ca-trust
     when: ansible_os_family == "RedHat"
 
-  - name: Debian - Update CA trust
+  - name: Update CA trust - Debian
     command: update-ca-certificates
     when: ansible_os_family == "Debian"
 

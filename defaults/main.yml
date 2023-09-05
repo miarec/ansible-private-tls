@@ -30,7 +30,7 @@ openssl_ca_cert_start: "+0s"
 # Digest algorithm to be used when self-signing the certificate.
 openssl_ca_cert_digest: "sha256"
 
-
+openssl_ca_force_replace: false # When true, existing certificate, key and CSR will be moved and regenerated
 
 # Server Certificate Varaibales
 openssl_servers: []
@@ -83,20 +83,7 @@ openssl_clients_key_size: 2048
 # Number of days teh is valid for.
 openssl_clients_cert_expiry: 3650
 
+openssl_clients_force_replace: false # When true, existing certificate, key and CSR will be moved and regenerated
 
 
 
-
-
-# Localt Certificate
-openssl_local_certificaite_dir: /etc/pki/tls
-
-
-
-
-
-
-
-# Client Variables
-# openssl_client_ca_dir: /etc/pki/ca-trust/source/anchors
-# openssl_client_ca_file: CA.pem
