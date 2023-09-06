@@ -1,11 +1,13 @@
 ---
-- name: Update CA trust - Fetch CA from root
+- name: Fetch CA from root
   command:
     cmd: "cat {{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+  delegate_to: "{{ openssl_root }}"
+  run_once: true
   register: _ca_content
-  when:
-  - inventory_hostname in openssl_root
-  - _ca_cert.changed
+  # become: true
+  changed_when: false
+
 
 - name: Update CA trust - Make sure anchor directory exists
   file:
@@ -35,7 +37,7 @@
 
 - name: Update CA trust - Add CA file
   copy:
-    content: _ca_content.stdout
+    content: "{{ _ca_content.stdout }}"
     dest: "{{ openssl_clients_ca_dir }}/{{ openssl_clients_ca_file }}"
   register: _client_ca
 

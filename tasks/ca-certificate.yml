@@ -55,3 +55,18 @@
     chdir: "{{ openssl_ca_dir }}"
     creates: "{{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
   register: _ca_cert
+
+# - name: Update CA trust - Fetch CA from root
+#   command:
+#     cmd: "cat {{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+#   register: _ca_content
+#   when: _ca_cert.changed
+
+# - debug:
+#     var: _ca_content
+
+# - set_fact:
+#     rendered_ca: "{{ _ca_content.stdout }}"
+
+# - debug:
+#     var: rendered_ca

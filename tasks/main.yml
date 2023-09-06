@@ -11,6 +11,14 @@
   become: true
   when: inventory_hostname in openssl_root
 
+# - name: Fetch CA from root
+#   command:
+#     cmd: "cat {{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
+#   delegate_to: "{{ openssl_root }}"
+#   run_once: true
+#   register: _ca_content
+#   become: true
+
 # Add Root CA to trust on all hosts
 - include: update-ca-trust.yml
   become: true
@@ -24,16 +32,3 @@
 - include: client-certificate.yml
   become: true
   when: inventory_hostname in openssl_root
-
-
-# # Need to make the copy not dependant on hostname
-# # What if i want a seperate cert for postgres and redis ????
-# I think i will move this part out of this role,
-# like if i generate a cert for redis, have a pre task on the redis play that pulls the cert
-
-# Add Client Certificates to servers
-# - include: local-certificate.yml
-#   become: true
-#   when: inventory_hostname in openssl_clients
-
-
