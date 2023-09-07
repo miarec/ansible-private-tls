@@ -5,9 +5,7 @@
   delegate_to: "{{ openssl_root }}"
   run_once: true
   register: _ca_content
-  # become: true
   changed_when: false
-
 
 - name: Update CA trust - Make sure anchor directory exists
   file:

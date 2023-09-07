@@ -1,12 +1,9 @@
 ---
-# Dependencies
-python_dependencies:
-  - cryptography
-
+openssl_root:   # Single host that will generate and store all certificates
 openssl_base_dir: /etc/openssl
 
 # CA variables
-openssl_ca_common_name: miarec-CA
+openssl_ca_common_name: private-ca
 openssl_ca_dir: "{{ openssl_base_dir }}/ca"
 openssl_ca_key: "{{ openssl_ca_common_name }}.key"
 openssl_ca_key_cipher: des3

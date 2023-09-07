@@ -11,14 +11,6 @@
   become: true
   when: inventory_hostname in openssl_root
 
-# - name: Fetch CA from root
-#   command:
-#     cmd: "cat {{ openssl_ca_dir }}/{{ openssl_ca_cert }}"
-#   delegate_to: "{{ openssl_root }}"
-#   run_once: true
-#   register: _ca_content
-#   become: true
-
 # Add Root CA to trust on all hosts
 - include: update-ca-trust.yml
   become: true
