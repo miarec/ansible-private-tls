@@ -4,23 +4,23 @@
 
 - include: root-dependencies.yml
   become: true
-  when: inventory_hostname in openssl_root
+  # when: inventory_hostname in openssl_root
 
 # Create Root CA
 - include:  ca-certificate.yml
   become: true
-  when: inventory_hostname in openssl_root
+  # when: inventory_hostname in openssl_root
 
-# Add Root CA to trust on all hosts
-- include: update-ca-trust.yml
-  become: true
+# # Add Root CA to trust on all hosts
+# - include: update-ca-trust.yml
+#   become: true
 
 # Create Server Certificates signed by CA
 - include: server-certificate.yml
   become: true
-  when: inventory_hostname in openssl_root
+  # when: inventory_hostname in openssl_root
 
 # Create Client Certificates signed by CA
 - include: client-certificate.yml
   become: true
-  when: inventory_hostname in openssl_root
+  # when: inventory_hostname in openssl_root

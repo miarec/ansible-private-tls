@@ -1,5 +1,5 @@
 ---
-openssl_root:   # Single host that will generate and store all certificates
+# openssl_root:   # Single host that will generate and store all certificates
 openssl_base_dir: /etc/openssl
 
 # CA variables
