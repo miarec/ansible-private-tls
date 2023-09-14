@@ -11,6 +11,7 @@
   become: true
   # when: inventory_hostname in openssl_root
 
+# Im going to move this to another playbook
 # # Add Root CA to trust on all hosts
 # - include: update-ca-trust.yml
 #   become: true
