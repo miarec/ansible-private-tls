@@ -1,0 +1,61 @@
+---
+# Install variables
+openssl_base_dir: /etc/openssl
+
+# CA variables
+openssl_ca_force_replace: false  # When true, existing CA certificate, key and CSR will be moved and regenerated
+
+openssl_ca_common_name: private-ca
+openssl_ca_dir: "{{ openssl_base_dir }}/ca"
+
+openssl_ca_cert: "{{ openssl_ca_common_name }}.pem"
+openssl_ca_cert_expiry: 3650  # Number of days the CA certs will be valid for.
+openssl_ca_cert_digest: "sha256"  # Digest algorithm to be used when self-signing the certificate.
+
+openssl_ca_key: "{{ openssl_ca_common_name }}.key"
+openssl_ca_key_cipher: des3
+openssl_secret_ca_passphrase: secret
+openssl_ca_key_size: 2048
+
+# Server Certificate Varaibales
+openssl_servers_force_replace: false  # When true, existing certificate, key and CSR will be moved and regenerated
+openssl_servers_dir: "{{ openssl_base_dir }}/servers"
+openssl_servers: []
+# List of Servers certificates that should be generated, along with optional variables
+# common_name: is the only required variable
+# Example:
+# openssl_clients:
+#   - common_name: service.example.com
+#     alt_DNS:
+#       - 10.0.0.1
+#       - "host.example.com"
+#     country: "US"
+#     state: "CA"
+#     locality: "San Jose"
+#     org: "acme"
+#     org_unit: "devops"
+#     email: "ssl@example.com"
+
+openssl_servers_key_size: 2048
+openssl_servers_cert_expiry: 3650  # Number of days the server certs will be valid for.
+
+# CLients Certificate Varaibales
+openssl_clients_force_replace: false  # When true, existing client certificate, key and CSR will be moved and regenerated
+openssl_clients_dir: "{{ openssl_base_dir }}/clients"
+openssl_clients: []
+# List of Clients certificates that should be generated, along with optional variables
+# common_name: is the only required variable
+# Example:
+# openssl_clients:
+#   - common_name: user@example.com
+#     alt_DNS:
+#       - "client-service.example.com"
+#     country: "US"
+#     state: "CA"
+#     locality: "San Jose"
+#     org: "acme"
+#     org_unit: "devops"
+#     email: "ssl@example.com"
+
+openssl_clients_key_size: 2048
+openssl_clients_cert_expiry: 3650  # Number of days the client certs will be valid for.

@@ -1,0 +1,17 @@
+---
+- include: preflight.yml
+
+- include: dependencies.yml
+  become: true
+
+# Create Root CA
+- include: ca-certificate.yml
+  become: true
+
+# Create Server Certificates signed by CA
+- include: server-certificate.yml
+  become: true
+
+# Create Client Certificates signed by CA
+- include: client-certificate.yml
+  become: true
