@@ -1,12 +1,12 @@
 ---
-- name: Servers - Create directory for certificates/keys
+- name: Server - Create directory for certificates/keys.
   file:
     path: "{{ openssl_servers_dir }}/{{ item.common_name }}"
     state: directory
     mode: 0600
   with_items: "{{ openssl_servers }}"
 
-- name: Servers - Create configuration file
+- name: Server - Create configuration file
   template:
     src: servers-config.cnf.j2
     dest: "{{ openssl_servers_dir }}/{{ item.common_name }}/{{ item.common_name }}.cnf"
@@ -16,44 +16,42 @@
   register: _server_cnf
 
 
-# Force replacement
-- name: Servers - Move existing certificates/key if replacement is required
+# Force replacement if enabled
+- name: Server - Move existing certificates/key if replacement is enabled.
   block:
+    - set_fact:
+        servers_prefix: "replaced-{{ ansible_date_time.date }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
 
-  - set_fact:
-      servers_prefix: "{{ ansible_date_time.date }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+    - name: Server - Create directory for existing certificates/keys.
+      file:
+        path: "{{ openssl_servers_dir }}/{{ servers_prefix }}"
+        state: directory
+        mode: 0600
 
-  - name: Servers - Create directory for existing certificates/keys
-    file:
-      path: "{{ openssl_servers_dir }}/{{ servers_prefix }}"
-      state: directory
-      mode: 0600
+    - name: Server - Move existing CSR.
+      command:
+        cmd: mv {{ item.common_name }}.csr {{ servers_prefix }}
+        chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+      with_items: "{{ openssl_servers }}"
+      failed_when: false
 
-  - name: Servers - Move existing CSR
-    command:
-      cmd: mv {{ item.common_name }}.csr {{ servers_prefix }}
-      chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
-    with_items: "{{ openssl_servers }}"
-    failed_when: false
+    - name: Server - Move existing key.
+      command:
+        cmd: mv {{ item.common_name }}.key {{ servers_prefix }}
+        chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+      with_items: "{{ openssl_servers }}"
+      failed_when: false
 
-  - name: Servers - Move existing key
-    command:
-      cmd: mv {{ item.common_name }}.key {{ servers_prefix }}
-      chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
-    with_items: "{{ openssl_servers }}"
-    failed_when: false
-
-  - name: Servers - Move existing certificate
-    command:
-      cmd: mv {{ item.common_name }}.crt {{ servers_prefix }}
-      chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
-    with_items: "{{ openssl_servers }}"
-    failed_when: false
-
+    - name: Server - Move existing certificate.
+      command:
+        cmd: mv {{ item.common_name }}.crt {{ servers_prefix }}
+        chdir: "{{ openssl_servers_dir }}/{{ item.common_name }}"
+      with_items: "{{ openssl_servers }}"
+      failed_when: false
   when: _server_cnf.changed or openssl_servers_force_replace or openssl_ca_force_replace
 
 
-- name: Servers - Create private key and CSR
+- name: Server - Create private key and CSR.
   command:
     cmd: >
       openssl req -nodes -newkey rsa:2048
@@ -64,7 +62,7 @@
   with_items: "{{ openssl_servers }}"
 
 
-- name: Servers - Create Certificate signed by CA
+- name: Server - Create Certificate signed by CA.
   command:
     cmd: >
       openssl x509 -req

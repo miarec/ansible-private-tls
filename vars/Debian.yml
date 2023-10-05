@@ -1,5 +1,2 @@
 ---
 package_dependencies: []
-
-# openssl_clients_ca_dir: /usr/local/share/ca-certificates
-# openssl_clients_ca_file: CA.crt

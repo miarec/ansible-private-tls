@@ -1,86 +1,61 @@
 ---
-# openssl_root:   # Single host that will generate and store all certificates
+# Install variables
 openssl_base_dir: /etc/openssl
 
 # CA variables
+openssl_ca_force_replace: false  # When true, existing CA certificate, key and CSR will be moved and regenerated
+
 openssl_ca_common_name: private-ca
 openssl_ca_dir: "{{ openssl_base_dir }}/ca"
+
+openssl_ca_cert: "{{ openssl_ca_common_name }}.pem"
+openssl_ca_cert_expiry: 3650  # Number of days the CA certs will be valid for.
+openssl_ca_cert_digest: "sha256"  # Digest algorithm to be used when self-signing the certificate.
+
 openssl_ca_key: "{{ openssl_ca_common_name }}.key"
 openssl_ca_key_cipher: des3
 openssl_secret_ca_passphrase: secret
 openssl_ca_key_size: 2048
 
-
-
-openssl_ca_cert: "{{ openssl_ca_common_name }}.pem"
-# openssl_ca_config: {{ openssl_ca_common_name }}.cnf
-
-
-# The point in time at which the certificate stops being valid.
-# Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
-openssl_ca_cert_expiry: 3650
-# openssl_ca_cert_expiry: "+3650d"
-
-# The point in time the certificate is valid from.
-# Valid format is [+-]timespec | ASN.1 TIME where timespec can be an integer + [w | d | h | m | s] (for example +32w1d2h).
-openssl_ca_cert_start: "+0s"
-# Digest algorithm to be used when self-signing the certificate.
-openssl_ca_cert_digest: "sha256"
-
-openssl_ca_force_replace: false # When true, existing certificate, key and CSR will be moved and regenerated
-
 # Server Certificate Varaibales
+openssl_servers_force_replace: false  # When true, existing certificate, key and CSR will be moved and regenerated
+openssl_servers_dir: "{{ openssl_base_dir }}/servers"
 openssl_servers: []
-# List of Servers that certificates should be generated for, along with optional variables
+# List of Servers certificates that should be generated, along with optional variables
 # common_name: is the only required variable
 # Example:
 # openssl_clients:
-#   - common_name: host1.example.com
+#   - common_name: service.example.com
 #     alt_DNS:
 #       - 10.0.0.1
-#       - "other.example.com"
+#       - "host.example.com"
 #     country: "US"
 #     state: "CA"
 #     locality: "San Jose"
-#     org: "miarec"
+#     org: "acme"
 #     org_unit: "devops"
 #     email: "ssl@example.com"
 
-
-openssl_servers_dir: "{{ openssl_base_dir }}/servers"
 openssl_servers_key_size: 2048
-# Number of days teh is valid for.
-openssl_servers_cert_expiry: 3650
-
-
-openssl_servers_force_replace: false # When true, existing certificate, key and CSR will be moved and regenerated
+openssl_servers_cert_expiry: 3650  # Number of days the server certs will be valid for.
 
 # CLients Certificate Varaibales
-
-
+openssl_clients_force_replace: false  # When true, existing client certificate, key and CSR will be moved and regenerated
+openssl_clients_dir: "{{ openssl_base_dir }}/clients"
 openssl_clients: []
-# List of Servers that certificates should be generated for, along with optional variables
+# List of Clients certificates that should be generated, along with optional variables
 # common_name: is the only required variable
 # Example:
 # openssl_clients:
-#   - common_name: host1.example.com
+#   - common_name: user@example.com
 #     alt_DNS:
-#       - 10.0.0.1
-#       - "other.example.com"
+#       - "client-service.example.com"
 #     country: "US"
 #     state: "CA"
 #     locality: "San Jose"
-#     org: "miarec"
+#     org: "acme"
 #     org_unit: "devops"
 #     email: "ssl@example.com"
 
-
-openssl_clients_dir: "{{ openssl_base_dir }}/clients"
 openssl_clients_key_size: 2048
-# Number of days teh is valid for.
-openssl_clients_cert_expiry: 3650
-
-openssl_clients_force_replace: false # When true, existing certificate, key and CSR will be moved and regenerated
-
-
-
+openssl_clients_cert_expiry: 3650  # Number of days the client certs will be valid for.

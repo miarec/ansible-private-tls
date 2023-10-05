@@ -1,27 +1,17 @@
 ---
-# I need to force cert generation if there is a change in parameter, like expiry
 - include: preflight.yml
 
-- include: root-dependencies.yml
+- include: dependencies.yml
   become: true
-  # when: inventory_hostname in openssl_root
 
 # Create Root CA
-- include:  ca-certificate.yml
+- include: ca-certificate.yml
   become: true
-  # when: inventory_hostname in openssl_root
-
-# Im going to move this to another playbook
-# # Add Root CA to trust on all hosts
-# - include: update-ca-trust.yml
-#   become: true
 
 # Create Server Certificates signed by CA
 - include: server-certificate.yml
   become: true
-  # when: inventory_hostname in openssl_root
 
 # Create Client Certificates signed by CA
 - include: client-certificate.yml
   become: true
-  # when: inventory_hostname in openssl_root

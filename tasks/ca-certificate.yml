@@ -1,39 +1,37 @@
 ---
-- name: CA - create CA directory
+- name: CA - Create directory for certificates/keys
   file:
     path: "{{ openssl_ca_dir }}"
     state: directory
     mode: 0640
 
-# Force replacement
-- name: CA - Move existing certificates/key if replacement is required
+# Force replacement if enabled
+- name: CA - Move existing certificates/key if replacement is enabled.
   block:
+    - set_fact:
+        ca_prefix: "replaced-{{ ansible_date_time.date }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
 
-  - set_fact:
-      ca_prefix: "{{ ansible_date_time.date }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+    - name: CA - Create directory for existing certificates/keys.
+      file:
+        path: "{{ openssl_ca_dir }}/{{ ca_prefix }}"
+        state: directory
+        mode: 0600
 
-  - name: CA - Create directory for existing certificates/keys
-    file:
-      path: "{{ openssl_ca_dir }}/{{ ca_prefix }}"
-      state: directory
-      mode: 0600
+    - name: CA - Move existing key.
+      command:
+        cmd: mv {{ openssl_ca_key }} {{ ca_prefix }}
+        chdir: "{{ openssl_ca_dir }}"
+      failed_when: false
 
-  - name: CA - Move existing key
-    command:
-      cmd: mv {{ openssl_ca_key }} {{ ca_prefix }}
-      chdir: "{{ openssl_ca_dir }}"
-    failed_when: false
-
-  - name: CA - Move existing certificate
-    command:
-      cmd: mv {{ openssl_ca_cert }} {{ ca_prefix }}
-      chdir: "{{ openssl_ca_dir }}"
-    failed_when: false
-
+    - name: CA - Move existing certificate.
+      command:
+        cmd: mv {{ openssl_ca_cert }} {{ ca_prefix }}
+        chdir: "{{ openssl_ca_dir }}"
+      failed_when: false
   when: openssl_ca_force_replace
 
 
-- name: CA - Create CA private key with password protection
+- name: CA - Create CA private key with password.
   command:
     cmd: >
       openssl genrsa -{{ openssl_ca_key_cipher }}
@@ -43,7 +41,7 @@
     chdir: "{{ openssl_ca_dir }}"
     creates: "{{ openssl_ca_dir }}/{{ openssl_ca_key }}"
 
-- name: CA - Create self-signed CA certificate
+- name: CA - Create self-signed CA certificate.
   command:
     cmd: >
       openssl req -x509 -new -nodes -{{ openssl_ca_cert_digest }}

@@ -1,12 +1,12 @@
 ---
-- name: Client - Create Clients certificate directory
+- name: Client - Create directory for certificates/keys
   file:
     path: "{{ openssl_clients_dir }}/{{ item.common_name }}"
     state: directory
     mode: 0600
   with_items: "{{ openssl_clients }}"
 
-- name: Client - Create config file for Clients
+- name: Client - Create configuration file.
   template:
     src: clients-config.cnf.j2
     dest: "{{ openssl_clients_dir }}/{{ item.common_name }}/{{ item.common_name }}.cnf"
@@ -15,44 +15,42 @@
   become: true
   register: _clients_cnf
 
-# Force replacement
-- name: Client - Move existing certificates/key if replacement is required
+# Force replacement if enabled
+- name: Client - Move existing certificates/key if replacement is enabled.
   block:
+    - set_fact:
+        clients_prefix: "replaced-{{ ansible_date_time.date }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
 
-  - set_fact:
-      clients_prefix: "{{ ansible_date_time.date }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+    - name: Client - Create directory for existing certificates/keys.
+      file:
+        path: "{{ openssl_clients_dir }}/{{ clients_prefix }}"
+        state: directory
+        mode: 0600
 
-  - name: Client - Create directory for existing certificates/keys
-    file:
-      path: "{{ openssl_clients_dir }}/{{ clients_prefix }}"
-      state: directory
-      mode: 0600
+    - name: Client - Move existing CSR.
+      command:
+        cmd: mv {{ item.common_name }}.csr {{ clients_prefix }}
+        chdir: "{{ openssl_clients_dir }}/{{ item.common_name }}"
+      with_items: "{{ openssl_clients }}"
+      failed_when: false
 
-  - name: Client - Move existing CSR
-    command:
-      cmd: mv {{ item.common_name }}.csr {{ clients_prefix }}
-      chdir: "{{ openssl_clients_dir }}/{{ item.common_name }}"
-    with_items: "{{ openssl_clients }}"
-    failed_when: false
+    - name: Client - Move existing key.
+      command:
+        cmd: mv {{ item.common_name }}.key {{ clients_prefix }}
+        chdir: "{{ openssl_clients_dir }}/{{ item.common_name }}"
+      with_items: "{{ openssl_clients }}"
+      failed_when: false
 
-  - name: Client - Move existing key
-    command:
-      cmd: mv {{ item.common_name }}.key {{ clients_prefix }}
-      chdir: "{{ openssl_clients_dir }}/{{ item.common_name }}"
-    with_items: "{{ openssl_clients }}"
-    failed_when: false
-
-  - name: Client - Move existing certificate
-    command:
-      cmd: mv {{ item.common_name }}.crt {{ clients_prefix }}
-      chdir: "{{ openssl_clients_dir }}/{{ item.common_name }}"
-    with_items: "{{ openssl_clients }}"
-    failed_when: false
-
+    - name: Client - Move existing certificate.
+      command:
+        cmd: mv {{ item.common_name }}.crt {{ clients_prefix }}
+        chdir: "{{ openssl_clients_dir }}/{{ item.common_name }}"
+      with_items: "{{ openssl_clients }}"
+      failed_when: false
   when: _clients_cnf.changed or openssl_clients_force_replace or openssl_ca_force_replace
 
 
-- name: Client - Create private key and CSR
+- name: Client - Create private key and CSR.
   command:
     cmd: >
       openssl req -nodes -newkey rsa:2048
@@ -62,7 +60,7 @@
     creates: "{{ openssl_clients_dir }}/{{ item.common_name }}/{{ item.common_name }}.key"
   with_items: "{{ openssl_clients }}"
 
-- name: Client - Create certificate signed by CA
+- name: Client - Create certificate signed by CA.
   command:
     cmd: >
       openssl x509 -req
