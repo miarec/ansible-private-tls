@@ -1,16 +1,13 @@
-# IN PROGRESS
-
 # ansible-private-tls
 Ansible role to create trusted self signed certificates for intra-cluster traffic
 
-This role will create a self signed root CA and update the ca trust on all hosts to trust this CA.
+This role will create a root CA that can be used to sign server and client certificates.
 
 In additon, this role will create multiple server and client certificates signed by the now trusted root CA.
 
 Consideration, one of the hosts must be designated as the root. This Host will be used to generate all certificates
 
 ### Root Host variables
-- `openssl_root` ansible host that will be used to generate and store certificats
 - `openssl_base_dir` Directory where the certificate system will be store, default: `/etc/openssl`
 
 ### CA variables
@@ -22,26 +19,23 @@ Consideration, one of the hosts must be designated as the root. This Host will b
 
 
 ### Server Certificate Varaibales
- - `openssl_servers` [Optional] List of Servers that certificates should be generated for, common_name is the only required option, along with optional variables
+ - `openssl_servers` [Optional] List of Servers certificates that should be generated, along with optional variables, `common_name` is required
 ```
  openssl_servers:
-   - common_name: host1.example.com
+   - common_name: service1.example.com
      alt_DNS:
        - 10.0.0.1
-       - "other.example.com"
+       - "host1.example.com"
      country: "US"
      state: "CA"
      locality: "San Jose"
-     org: "miarec"
+     org: "acme"
      org_unit: "devops"
      email: "ssl@example.com"
-   - common_name: host2.example.com
+   - common_name: service2.example.com
      alt_DNS:
        - 10.0.0.50
-       - "other.example.com"
-     org: "miarec"
-     org_unit: "sales"
-     email: "ssl@example.com"
+       - "host2.example.com"
 
 ```
 - `openssl_servers_cert_expiry` number of days the server certificates are valid for, default: `3650`
@@ -50,18 +44,21 @@ Consideration, one of the hosts must be designated as the root. This Host will b
 ### Clients Certificate Varaibales
 
 
-- `openssl_clients` [Optional] List of clients that certificates should be generated for, common_name is the only required option, along with optional variables
-```
- openssl_clients:
-   - common_name: apache_web_service
-     country: "US"
-     state: "CA"
-     email: "ssl@example.com"
-   - common_name: some.name@example.com
-     org: "miarec"
-     org_unit: "devops"
-     email: "ssl@example.com"
+- `openssl_clients` [Optional] List of Client certificates that should be generated, along with optional variables, `common_name` is required
 
+```
+openssl_clients:
+  - common_name: user1@example.com
+    alt_DNS:
+      - 10.0.0.1
+      - "client-service.example.com"
+    country: "US"
+    state: "CA"
+    locality: "San Jose"
+    org: "acme"
+    org_unit: "devops"
+    email: "ssl@example.com"
+  - common_name: user2
 ```
 - `openssl_clients_cert_expiry` number of days the client certificates are valid for, default: `3650`
 
@@ -70,21 +67,20 @@ Consideration, one of the hosts must be designated as the root. This Host will b
 The following variables can be supplied to regenerate certificats, this can be required if certificates have expired, or DNS names have been updated
 
 - `openssl_ca_force_replace` When `true`;
-    - existing CA certificate, key and CSR will be moved and regenerated,
+    - existing CA certificate, key and CSR will be moved to a new directory
+    - CA certificate and key will be regenerated.
     - exisitng client and server certificates will be moved and regenerated
     - CA trust will be updated on all hosts
 
-- `openssl_servers_force_replace` When `true`, existing server certificates, keys and CSRs will be moved and regenerated
-- `openssl_clients_force_replace` When `true`, existing client certificates, keys and CSRs will be moved and regenerated
+- `openssl_servers_force_replace` When `true`, existing server certificates and keys will be relocated and regenerated
+- `openssl_clients_force_replace` When `true`, existing client certificates and keys will be relocated and regenerated
 
 Exisiting files will be moved to a new directory in the exising infrastructure for later reference
 
-NOTE: this role generated new certificates, the new certs still need to be moved to the application using them and the services using them need to be restarted.
+NOTE: This role will generate new certificates, However the new certs still need to be moved to the application using them and the services using them need to be restarted.
 
 
 ## Example Playbook
-
-
 
 ```
 - name: Generate Private TLS infrastructure
