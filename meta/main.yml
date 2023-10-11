@@ -2,7 +2,7 @@
 galaxy_info:
   author: miarec
   description: Deploy Private TLS infrastructure
-  role_name: private-tls
+  role_name: ansible-private-tls
   license: MIT
   company: MiaRec, Inc.
   min_ansible_version: 2.7
