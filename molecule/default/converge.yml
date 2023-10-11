@@ -13,4 +13,4 @@
   roles:
     - role: ansible-private-tls
       tags:
-        - private-tls
+        - private_tls
